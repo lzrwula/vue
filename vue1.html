@@ -265,6 +265,15 @@
                     this.list.splice(i,0,{date:this.date1,description:this.description1,total:this.total1})
                     
                 }
+                this.serch2.push(this.serch2.length);
+                this.view.push(true);
+                this.view1.push(true);
+                this.view2.push(true);
+                this.editing.push(false);
+                this.editing1.push(false);
+                this.editing2.push(false);
+                console.log(this.list);
+                console.log(this.serch2);
             },
             dele(){
                 var i,j;
@@ -276,6 +285,13 @@
                     else
                         return 0;
                 }
+                this.serch2.pop();
+                this.view.pop();
+                this.view1.pop();
+                this.view2.pop();
+                this.editing.pop();
+                this.editing1.pop();
+                this.editing2.pop();
                 this.deletelist.sort(compare);
                 console.log(this.deletelist);
                 for(i=this.deletelist.length-1;i>=0;i--){
