@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #app{
+            background-color: rgb(138, 138, 138);
+            width: 600px;
+            height: 400px;
+        }
+        #top{
+            width: 560px;
+            height: 27px;
+            padding-left: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #top1{
+            width: 280px;
+            display: flex;
+            justify-content: space-between;
+        }
+        #top span{
+            font-weight: lighter;
+            font-size: 13px;
+        }
+        #options{
+            height: 259px;
+            margin:0; padding:0; list-style:none;
+            background-color: rgb(204, 202, 202);
+        }
+        #bottom{
+            width: 100%;
+            display: flex;
+            
+        }
+        #bottom input{
+            flex-grow: 1;
+        }
+        #bottom button{
+            border: none;
+            margin:0; 
+            padding: none; 
+        }
+        #bottom ul{
+            margin: 0;
+            list-style: none;
+        }
+        #bottom1{
+            display: flex;
+        }
+        #options li{
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
+        }
+        .active1{
+            border-top: 1px solid red;
+            border-bottom: 1px solid red;
+        }
+        .active2{
+            border-bottom: 1px solid red;
+        }
+        #options span{
+            display: block;
+            height: 42px;
+            line-height: 42px;
+            font-weight: lighter;
+        }
+        #options li #lasts{
+            margin-right: 10px;
+        }
+        #options li div{
+            display: flex;
+            flex-grow: 1;
+        }
+        #options li div span:nth-child(2){
+            margin: 0 25px;
+        }
+        #badd{
+            width: 100%;
+        }
+        #bottom1 ul{
+            display: flex;
+            justify-content: center;
+            align-items: center  ;
+            padding-left: 0;
+        }
+        #bottom1 li{
+            width: 13.771px;
+            padding-left: 5px;
+            height: 18.771px;
+            margin-right: 2px;
+            display: block;
+            background-color: red;
+            list-style:none;
+            border: 1 solid black;
+        }
+        #bottom1 li:hover{
+            cursor: default;
+        }
+        .ac1{
+            color: burlywood;
+        }
+        .isViewing{
+            display: none;
+        }
+        .isEditing{
+            display: none;
+        }
+        #top1 :first-child{
+            margin-left: 45px;
+        }
+        /* #top1 :nth-child(3){
+
+        } */
+        .jing{
+            margin: 0 25px;
+        }
+        
+
+
+    </style>    
+</head>
+<body>
+    <div id="app">
+        <div id="top">
+            <div id="top1">
+                <span>Date</span>
+                <span>#</span>
+                <span>Description</span>
+            </div>
+            <span>Total</span>
+        </div>
+        <ul id="options">
+            <li :class="isactive(index)" v-if="(index>=(pageNow-1)*6&&index<=(pageNow-1)*6+5&&serch2.some((item1,index1,array1) => (item1)==index))||(serch2.some((item1,index1,array1) => (item1)==index)&&jude==0)" v-for="(item,index) in list">
+                <input type="checkbox"  :value="index" v-model="deletelist">
+                <div>
+                    <input v-model="list[index].date" v-show="editing2[index]" @keyup.enter="submit2(index)" type="text">
+                    <span v-show="view2[index]" @dblclick="dbTest2(index)">{{item.date}}</span>
+                    <span class="jing">{{index+1}}</span>
+                    <div>
+                        <span v-show="view[index]" @dblclick="dbTest(index)">{{item.description}}</span>
+                        <input v-model="list[index].description" v-show="editing[index]" @keyup.enter="submit(index)" type="text">
+                    </div>
+                    
+                </div>
+                    
+                        <input v-model="list[index].total" v-show="editing1[index]" @keyup.enter="submit1(index)" type="text">
+                        <span v-show="view1[index]" @dblclick="dbTest1(index)" id="lasts">{{item.total}}</span>
+                    
+            </li>
+        </ul>
+        <div id="bottom">
+            <div id="bottom1">
+                <button @click="befor"><</button>
+                <ul>
+                    <li :class="isactive1(v)" v-for="(v,i) in pageTotal" :key="i" @click="change(i)">{{v}}</li>
+                </ul>
+                <button @click="after">></button>
+            </div>
+
+            <input v-model="serch1" placeholder="请输入需搜索数字序号" type="text" @input="serch">
+        </div>
+        <div id="badd">
+            <input v-model="date1" type="text" placeholder="Date">
+            <input v-model="description1" type="text" placeholder="Description">
+            <input v-model="total1" type="text" placeholder="Total">
+            <button @click="add">add</button>
+        </div>
+        <button @click="dele">Delete</button>
+        <p>提示：修改请双击内容处</p>
+    </div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<script>
+    let app = new Vue({
+        el:"#app",
+        data:{
+            date1:"",
+            description1:"",
+            total1:"",
+            serch1:"",
+            jude:1,
+            serch2:[],
+            deletelist:[],
+            pageTotal:1,
+            rows:1,
+            pageNow:1,
+            editing:[],
+            view:[],
+            editing1:[],
+            view1:[],
+            editing2:[],
+            view2:[],
+            list:[
+                    {
+                        date:'10/31/2017',
+                        description:'Alpha Bravo Charlie',
+                        total:26
+                    },
+                    {
+                        date:'10/30/2017',
+                        description:'Bravo Charlie Delta',
+                        total:550
+                    },
+                    {
+                        date:'10/29/2017',
+                        description:'Charlie Delto Echo',
+                        total:9
+                    },
+                    {
+                        date:'10/28/2017',
+                        description:'Foxtrot',
+                        total:9
+                    },
+                    {
+                        date:'10/27/2017',
+                        description:'Golf Hotel India',
+                        total:9
+                    },
+                    {
+                        date:'10/27/2017',
+                        description:'Golf Hotel India',
+                        total:9
+                    },
+                    {
+                        date:'10/27/2017',
+                        description:'Golf Hotel India',
+                        total:9
+                    },
+                    {
+                        date:'10/27/2017',
+                        description:'Golf Hotel India',
+                        total:9
+                    }
+                ],
+                list1:[]
+        },
+        methods:{
+            isactive(index){
+                if(index==0)
+                    return "active1";
+                else
+                    return "active2";
+            },
+            isactive1(index){
+                if(index==this.pageNow)
+                    return "ac1";
+                else
+                    return "ac2";
+            },
+            add(){
+                var i,j;
+                for(i=0;i<this.list.length&&Date.parse(this.list[i].date)>Date.parse(this.date1);i++){}
+                
+                if(i==this.list.length-1){
+                    this.list.push({date:this.date1,description:this.description1,total:this.total1})
+                }else{
+                    this.list.splice(i,0,{date:this.date1,description:this.description1,total:this.total1})
+                    
+                }
+            },
+            dele(){
+                var i,j;
+                function compare(value1,value2){
+                    if(value1<value2)
+                        return -1;
+                    else if(value1>value2)
+                        return 1;
+                    else
+                        return 0;
+                }
+                this.deletelist.sort(compare);
+                console.log(this.deletelist);
+                for(i=this.deletelist.length-1;i>=0;i--){
+                    this.list.splice(this.deletelist[i],1);
+                }
+                this.deletelist=[];
+                console.log(this.list1.length);
+            },
+            serch(){
+                this.serch1=Number(this.serch1);
+                if(this.serch1==""){
+                    this.jude=1;
+                    this.serch1="";
+                    for(i=0;i<this.rows;i++){
+                        this.serch2.push(i);
+                    }
+                }else{
+                    this.jude=0;
+                    this.serch2=[];
+                    this.serch2.push(this.serch1-1);
+                }
+                console.log(this.serch2);
+            },
+            change(i){
+                var x;
+                this.pageNow=i+1;
+            },
+            after(){
+                if(this.pageNow<this.pageTotal)
+                    this.pageNow++;
+            },
+            befor(){
+                if(this.pageNow>1)
+                    this.pageNow--;
+            },
+            dbTest(index){
+                this.$set(this.editing,index,true);
+                this.$set(this.view,index,false);
+                console.log(this.editing);
+            },
+            dbTest1(index){
+                this.$set(this.editing1,index,true);
+                this.$set(this.view1,index,false);
+            },
+            dbTest2(index){
+                this.$set(this.editing2,index,true);
+                this.$set(this.view2,index,false);
+            },
+            submit(index){
+                this.$set(this.editing,index,false);
+                this.$set(this.view,index,true);
+                console.log(this.list);
+            },
+            submit1(index){
+                this.$set(this.editing1,index,false);
+                this.$set(this.view1,index,true);
+            },
+            submit2(index){
+                var i,x;
+                this.$set(this.editing2,index,false);
+                this.$set(this.view2,index,true);
+                if(Date.parse(this.list[index].date)<Date.parse(this.list[index+1].date)){
+                    while(Date.parse(this.list[index].date)<Date.parse(this.list[index+1].date)){
+                        x = this.list[index];
+                        this.list[index] = this.list[index+1];
+                        this.list[index+1] = x;
+                        index++;
+                    }
+                }else if(Date.parse(this.list[index].date)>Date.parse(this.list[index-1].date)){
+                    while(Date.parse(this.list[index].date)>Date.parse(this.list[index-1].date)){
+                        x = this.list[index];
+                        this.list[index] = this.list[index-1];
+                        this.list[index-1] = x;
+                        index--;
+                    }
+                    
+                }
+                console.log(this.list);
+            }
+        },
+        mounted:function(){
+            var i;
+            this.rows=this.list.length;
+            this.pageTotal=Math.ceil(this.rows/6);
+            for(i=0;i<this.rows;i++){
+                this.serch2.push(i);
+            }
+            for(i=0;i<this.rows;i++){
+                this.view.push(true);
+                this.view1.push(true);
+                this.view2.push(true);
+            }
+            for(i=0;i<this.rows;i++){
+                this.editing.push(false);
+                this.editing1.push(false);
+                this.editing2.push(false);
+            }
+        },
+        updated:function(){
+            var y,i;
+            this.rows=this.list.length;
+            this.pageTotal=Math.ceil(this.rows/6);
+            console.log(this.serch1);
+            console.log("serch");
+        }
+    })
+</script>
+
+</html>
